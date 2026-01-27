@@ -23,16 +23,15 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        defaultValue: "USER",
-        required: false
+        required: true
       },
       phone: {
         type: "string",
         required: false
       },
-      status: {
-        type: "string",
-        defaultValue: "ACTIVE",
+      isBanned: {
+        type: "boolean",
+        defaultValue: "false",
         required: false
       }
     }
