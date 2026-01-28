@@ -1,27 +1,26 @@
 import { NextFunction, Request, Response } from "express"
 
 import paginationSortingHelpers from "../../helpers/paginationSorting"
-import { OrderService } from "./order.service"
+import { categoryService } from "./category.service"
 
 
-const createOrder = async (req: Request, res: Response,next:NextFunction) => {
+
+const createCategory = async (req: Request, res: Response,next:NextFunction) => {
     try {
    
 
-        const result = await OrderService.createOrder(req.body)
+        const result = await categoryService.createCategory(req.body)
         res.status(201).json(result)
     } catch (e) {
         next(e)
 
     }
 }
-const getAllOrder=async(req:Request,res:Response)=>{
+const getAllCategory=async(req:Request,res:Response)=>{
     try{
         
-        const {search}=req.query
-        const searchString=typeof search ==='string'? search:undefined;
-        const {page,limit,skip,sortBy,sortOrder}=paginationSortingHelpers(req.query)
-        const result=await OrderService.getAllOrder({search:searchString,page,limit,skip,sortBy,sortOrder});
+
+        const result=await categoryService.getAllCategory();
         res.status(200).json(result)
     }
     catch(e){
@@ -33,10 +32,10 @@ const getAllOrder=async(req:Request,res:Response)=>{
     }
 
 }
-const getOrderById=async(req:Request,res:Response)=>{
+const getCategoryById=async(req:Request,res:Response)=>{
     try{
         const {id}=req.params
-        const result=await OrderService.getOrderById(id as string)
+        const result=await categoryService.getCategoryById(id as string)
         res.status(200).json(result);
 
     }
@@ -49,12 +48,13 @@ const getOrderById=async(req:Request,res:Response)=>{
     }
 
 }
-const updateOrder=async(req:Request,res:Response,next:NextFunction)=>{
+
+const deleteCategory=async(req:Request,res:Response,next:NextFunction)=>{
     try{
         
-        const {orderId}=req.params
-        const data=req.body
-        const result=await OrderService.updateOrder(orderId as string,data)
+        const {categoryId}=req.params
+        
+        const result=await categoryService.deleteCategory(categoryId as string)
         res.status(200).json(result);
 
     }
@@ -64,26 +64,10 @@ const updateOrder=async(req:Request,res:Response,next:NextFunction)=>{
     }
 
 }
-const deleteOrder=async(req:Request,res:Response,next:NextFunction)=>{
-    try{
-        
-        const {orderId}=req.params
-   
-        const result=await OrderService.deleteOrder(orderId as string)
-        res.status(200).json(result);
-
-    }
-    catch(err){
-            next()
-
-    }
-
-}
-export const OrderController = {
-    createOrder,
-    getAllOrder,
-    getOrderById,
-    updateOrder,
-    deleteOrder
+export const categoryController = {
+    createCategory,
+    getAllCategory,
+    getCategoryById,
+    deleteCategory
 
 }

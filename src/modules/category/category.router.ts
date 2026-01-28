@@ -1,11 +1,12 @@
 import express, {Router } from 'express';
-import { OrderController } from './category.controller';
+import { categoryController } from './category.controller';
+
 
 const router = express.Router();
-router.post("/",OrderController.createOrder)
-router.get("/",OrderController.getAllOrder)
-router.get("/:id",OrderController.getOrderById)
-router.patch("/:orderId",OrderController.updateOrder)
-router.delete("/:orderId",OrderController.deleteOrder)
+router.post("/",categoryController.createCategory)
+router.get("/",categoryController.getAllCategory)
+router.get("/:id",categoryController.getCategoryById)
 
-export const orderRouter: Router = router;
+router.delete("/:categoryId",categoryController.deleteCategory)
+
+export const categoryRouter: Router = router;

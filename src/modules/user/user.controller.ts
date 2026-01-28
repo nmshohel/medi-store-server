@@ -43,9 +43,9 @@ const getUserById=async(req:Request,res:Response)=>{
 const updateUser=async(req:Request,res:Response,next:NextFunction)=>{
     try{
         
-        const {userId}=req.params
+        const {id}=req.params
         const data=req.body
-        const result=await userService.updateUser(userId as string,data)
+        const result=await userService.updateUser(id as string,data)
         res.status(200).json(result);
 
     }
