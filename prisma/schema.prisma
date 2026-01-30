@@ -59,7 +59,7 @@ model Medicine {
   price        Float
   stock        Int
   manufacturer String
-
+  image String?
   sellerId   String
   categoryId String
 

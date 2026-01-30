@@ -5,13 +5,6 @@ CREATE TYPE "UserRole" AS ENUM ('CUSTOMER', 'SELLER', 'ADMIN');
 CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED');
 
 -- CreateTable
-CREATE TABLE "Medicines" (
-    "id" TEXT NOT NULL,
-
-    CONSTRAINT "Medicines_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "user" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -44,6 +37,7 @@ CREATE TABLE "Medicine" (
     "price" DOUBLE PRECISION NOT NULL,
     "stock" INTEGER NOT NULL,
     "manufacturer" TEXT NOT NULL,
+    "image" TEXT,
     "sellerId" TEXT NOT NULL,
     "categoryId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
