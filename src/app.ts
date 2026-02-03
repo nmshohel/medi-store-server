@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import cors from 'cors';
@@ -22,5 +22,11 @@ app.use("/api/users", userRouter);
 app.get("/", (req, res) => {
     res.send("Hello, Medistore!");
 });
-
+app.use((req:Request,res:Response)=>{
+  res.status(404).json({
+    success:false,
+    message:"Route Not Found",
+    path:req.path
+  })
+})
 export default app;

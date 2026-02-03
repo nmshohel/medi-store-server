@@ -29,11 +29,6 @@ export const auth = betterAuth({
         type: "string",
         required: false
       },
-      isBanned: {
-        type: "boolean",
-        defaultValue: "false",
-        required: false
-      }
     }
   },
   emailAndPassword: {

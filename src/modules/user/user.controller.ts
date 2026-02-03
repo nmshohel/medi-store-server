@@ -50,7 +50,10 @@ const updateUser=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     catch(err){
-            next()
+            res.status(400).json({
+            error:"Update Failed",
+            details:err
+        })
 
     }
 
@@ -65,7 +68,10 @@ const deleteUser=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     catch(err){
-            next()
+            res.status(400).json({
+            error:"Delete Failed",
+            details:err
+        })
 
     }
 

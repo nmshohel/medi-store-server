@@ -30,9 +30,7 @@ model User {
   reviews       Review[] // customer → reviews
   role          String?    
   phone         String?
- 
-
-  isBanned Boolean? @default(false)
+  
 
   @@unique([email])
   @@map("user")

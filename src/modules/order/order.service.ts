@@ -68,6 +68,10 @@ const getAllOrder=async({
         orderBy: {
             [sortBy]:sortOrder
         },
+        include:{
+            user:true,
+            medicine:true
+        }
     
     });
 

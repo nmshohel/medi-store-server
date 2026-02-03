@@ -115,6 +115,17 @@ const updateMedicine=async(medicineId:string,data:Partial<Medicine>)=>{
 
 }
 const deleteMedicine=async(medicineId:string)=>{
+  
+    const isExist=await prisma.medicine.findUnique({
+        where:{
+            id:medicineId
+        }
+    })
+    console.log(isExist,"**************")
+    if(isExist===null)
+    {
+        throw new Error("Medicine not found")
+    }
     const result=await prisma.medicine.delete({
         where:{
             id:medicineId

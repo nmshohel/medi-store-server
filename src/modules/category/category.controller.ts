@@ -12,7 +12,10 @@ const createCategory = async (req: Request, res: Response,next:NextFunction) => 
         const result = await categoryService.createCategory(req.body)
         res.status(201).json(result)
     } catch (e) {
-        next(e)
+                res.status(200).json({
+            error:"Created Failed",
+            details:e
+        })
 
     }
 }
@@ -59,7 +62,10 @@ const deleteCategory=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     catch(err){
-            next()
+            res.status(400).json({
+            error:"Delete Failed",
+            details:err
+        })
 
     }
 

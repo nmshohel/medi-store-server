@@ -9,7 +9,10 @@ const createMedicine = async (req: Request, res: Response,next:NextFunction) => 
         const result = await medicineService.createMedicine(req.body)
         res.status(201).json(result)
     } catch (e) {
-        next(e)
+        res.status(400).json({
+            error:"Medicine Added Failed",
+            details:e
+        })
 
     }
 }
@@ -57,7 +60,10 @@ const updateMedicine=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     catch(err){
-            next()
+        res.status(400).json({
+            error:"Update Failed",
+            details:err
+        })
 
     }
 
@@ -72,7 +78,10 @@ const deleteMedicine=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     catch(err){
-            next()
+        res.status(400).json({
+            error:"Delete Failed",
+            details:err
+        })
 
     }
 

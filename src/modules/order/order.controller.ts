@@ -11,7 +11,10 @@ const createOrder = async (req: Request, res: Response,next:NextFunction) => {
         const result = await OrderService.createOrder(req.body)
         res.status(201).json(result)
     } catch (e) {
-        next(e)
+        res.status(400).json({
+            error:"Created Failed",
+            details:e
+        })
 
     }
 }
@@ -59,7 +62,10 @@ const updateOrder=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     catch(err){
-            next()
+            res.status(400).json({
+            error:"Update Failed",
+            details:err
+        })
 
     }
 
@@ -74,7 +80,10 @@ const deleteOrder=async(req:Request,res:Response,next:NextFunction)=>{
 
     }
     catch(err){
-            next()
+        res.status(400).json({
+            error:"Delete Failed",
+            details:err
+        })
 
     }
 
