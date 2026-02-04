@@ -70,10 +70,29 @@ const deleteCategory=async(req:Request,res:Response,next:NextFunction)=>{
     }
 
 }
+const updateCategory=async(req:Request,res:Response,next:NextFunction)=>{
+    try{
+        
+        const {categoryId}=req.params
+        const data=req.body
+        const result=await categoryService.updateCategory(categoryId as string,data)
+        res.status(200).json(result);
+
+    }
+    catch(err){
+            res.status(400).json({
+            error:"Update Failed",
+            details:err
+        })
+
+    }
+
+}
 export const categoryController = {
     createCategory,
     getAllCategory,
     getCategoryById,
-    deleteCategory
+    deleteCategory,
+    updateCategory
 
 }

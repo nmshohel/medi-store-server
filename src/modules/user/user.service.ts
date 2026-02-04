@@ -55,7 +55,8 @@ const getAllUser=async({
         take:limit,
         skip,
         where:{
-           AND:andConditions
+           AND:andConditions,
+           status:"unban"
         },
         orderBy: {
             [sortBy]:sortOrder
@@ -65,7 +66,8 @@ const getAllUser=async({
 
     const total=await prisma.user.count({
         where:{
-            AND:andConditions
+            AND:andConditions,
+            status:"unban"
         }
     })
     
@@ -95,6 +97,7 @@ const getUserById=async(id:string)=>{
 }
 
 const updateUser=async(userId:string,data:Partial<User>)=>{
+    console.log(userId)
     const result=await prisma.user.update({
         where:{
             id:userId

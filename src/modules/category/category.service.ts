@@ -1,4 +1,4 @@
-import { Medicine, Order } from "../../../generated/prisma/client"
+import { Category, Medicine, Order } from "../../../generated/prisma/client"
 import { MedicineWhereInput, OrderWhereInput } from "../../../generated/prisma/models"
 import { prisma } from "../../lib/prisma"
 
@@ -47,11 +47,23 @@ const deleteCategory=async(categoryId:string)=>{
     return result
 
 }
+const updateCategory=async(categoryId:string,data:Partial<Category>)=>{
+    const result=await prisma.category.update({
+        where:{
+            id:categoryId
+        },
+        data
+    })
+
+    return result
+
+}
 export const categoryService = {
     createCategory,
     getAllCategory,
     getCategoryById,
-    deleteCategory
+    deleteCategory,
+    updateCategory
 
   
 }

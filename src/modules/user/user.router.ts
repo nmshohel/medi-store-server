@@ -4,9 +4,9 @@ import auth, { UserRole } from '../../middleware/auth';
 
 
 const router = express.Router();
-router.get("/",auth(UserRole.ADMIN),userController.getAllUser)
+router.get("/",userController.getAllUser)
 router.get("/:id",userController.getUserById)
-router.patch("/:userId",auth(UserRole.ADMIN),userController.updateUser)
+router.patch("/:userId",userController.updateUser)
 router.delete("/:userId",userController.deleteUser)
 
 export const userRouter: Router = router;
