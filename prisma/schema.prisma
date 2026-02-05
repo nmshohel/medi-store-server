@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -14,39 +8,83 @@ datasource db {
 }
 
 model User {
-  id            String     @id
+  id            String  @id
   name          String
-  email         String
-  emailVerified Boolean    @default(false)
+  email         String  @unique
+  emailVerified Boolean @default(false)
   image         String?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  medicines     Medicine[] // seller → medicines
-  orders        Order[] // customer → orders
-  reviews       Review[] // customer → reviews
   role          String?
   phone         String?
+  status        String?
 
-  status String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([email])
+  sessions  Session[]
+  accounts  Account[]
+  medicines Medicine[]
+  orders    Order[]
+  reviews   Review[]
+
   @@map("user")
 }
 
-enum UserRole {
-  CUSTOMER
-  SELLER
-  ADMIN
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id         String @id
+  accountId  String
+  providerId String
+  userId     String
+
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
 
 model Category {
   id        String     @id @default(uuid())
   name      String     @unique
   medicines Medicine[]
-
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
 }
 
 model Medicine {
@@ -57,39 +95,47 @@ model Medicine {
   stock        Int
   manufacturer String
   image        String?
-  sellerId     String
-  categoryId   String
 
-  seller   User     @relation(fields: [sellerId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
-  reviews  Review[]
-  orders   Order[]
+  sellerId   String
+  categoryId String
+
+  seller     User        @relation(fields: [sellerId], references: [id])
+  category   Category    @relation(fields: [categoryId], references: [id])
+  reviews    Review[]
+  orderItems OrderItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Order {
-  id         String @id @default(uuid())
-  userId     String
-  medicineId String
+  id     String @id @default(uuid())
+  userId String
 
-  quantity Int
-  address  String
-  status   OrderStatus @default(PENDING)
+  totalAmount   Float
+  deliveryFee   Float       @default(60)
+  address       String
+  paymentMethod String      @default("cod")
+  status        OrderStatus @default(PENDING)
 
-  user     User     @relation(fields: [userId], references: [id])
-  medicine Medicine @relation(fields: [medicineId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
+  orderItems OrderItem[]
 
   createdAt DateTime @default(now())
 }
 
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  SHIPPED
-  DELIVERED
-  CANCELLED
+model OrderItem {
+  id         String @id @default(uuid())
+  orderId    String
+  medicineId String
+
+  quantity Int
+  price    Float // price at time of order
+
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  medicine Medicine @relation(fields: [medicineId], references: [id])
+
+  @@unique([orderId, medicineId])
 }
 
 model Review {
@@ -106,50 +152,10 @@ model Review {
   createdAt DateTime @default(now())
 }
 
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([token])
-  @@index([userId])
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  @@index([userId])
-  @@map("account")
-}
-
-model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([identifier])
-  @@map("verification")
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }

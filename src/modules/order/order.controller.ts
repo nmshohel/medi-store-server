@@ -7,12 +7,14 @@ import { OrderService } from "./order.service"
 const createOrder = async (req: Request, res: Response,next:NextFunction) => {
     try {
    
-
-        const result = await OrderService.createOrder(req.body)
+        // const userId="4cYcXznj2AkPeSAdJHjqFQ1CoLNVYrQ7"
+        const userId=req.user?.id
+        console.log({userId})
+        const result = await OrderService.createOrder(req.body,userId as string)
         res.status(201).json(result)
     } catch (e) {
         res.status(400).json({
-            error:"Created Failed",
+            error:"Order Creation Failed",
             details:e
         })
 

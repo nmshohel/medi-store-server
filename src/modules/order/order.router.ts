@@ -3,7 +3,7 @@ import { OrderController } from './order.controller';
 import auth, { UserRole } from '../../middleware/auth';
 
 const router = express.Router();
-router.post("/",OrderController.createOrder)
+router.post("/",auth(UserRole.CUSTOMER),OrderController.createOrder)
 router.get("/",OrderController.getAllOrder)
 router.get("/:id",OrderController.getOrderById)
 router.patch("/:orderId",auth(UserRole.SELLER),OrderController.updateOrder)

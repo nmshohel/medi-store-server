@@ -2,15 +2,70 @@ import { Medicine, Order } from "../../../generated/prisma/client"
 import { MedicineWhereInput, OrderWhereInput } from "../../../generated/prisma/models"
 import { prisma } from "../../lib/prisma"
 
-const createOrder=async(data:any)=>{
-    const result=await prisma.order.create({
-        data:{
-            ...data,
-        }
+const createOrder = async (data: any, userId: string) => {
+  const { orderItems, shippingAddress, paymentMethod, total } = data;
 
-    })
-    return result
-}
+  // 1. Extract all medicine IDs from the incoming order
+  const incomingMedicineIds = orderItems.map((item: any) => item.id);
+
+  // 2. Check if the user has already ordered any of these medicines
+  // We check OrderItem because that's where the medicine link lives now
+  const existingOrderWithMedicine = await prisma.orderItem.findFirst({
+    where: {
+      medicineId: { in: incomingMedicineIds },
+      order: {
+        userId: userId,
+        // Optional: You might want to allow re-ordering if previous order was CANCELLED
+        status: { not: "CANCELLED" } 
+      }
+    },
+    include: {
+      medicine: true // To get the name for the error message
+    }
+  });
+
+  if (existingOrderWithMedicine) {
+    throw new Error("Order already exist")
+  }
+
+  // 3. If no conflict, proceed with Transaction
+  const result = await prisma.$transaction(async (tx) => {
+    // Create the Order
+    const order = await tx.order.create({
+      data: {
+        userId: userId,
+        totalAmount: total,
+        address: shippingAddress,
+        paymentMethod: paymentMethod,
+        deliveryFee: 60,
+        orderItems: {
+          create: orderItems.map((item: any) => ({
+            medicineId: item.id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        },
+      },
+      include: {
+        orderItems: true,
+      },
+    });
+
+    // Decrease stock
+    for (const item of orderItems) {
+      await tx.medicine.update({
+        where: { id: item.id },
+        data: {
+          stock: { decrement: item.quantity },
+        },
+      });
+    }
+
+    return order;
+  });
+
+  return result;
+};
 
 
 const getAllOrder=async({
@@ -35,10 +90,7 @@ const getAllOrder=async({
             {
                 OR:[
             {
-                medicineId:{
-                contains:search as string,
-                mode:'insensitive'
-            },
+ 
 
             },
             {
@@ -70,7 +122,7 @@ const getAllOrder=async({
         },
         include:{
             user:true,
-            medicine:true
+           
         }
     
     });
@@ -98,7 +150,7 @@ const getOrderById=async(id:string)=>{
                 id
             },
             include:{
-                medicine:true,
+          
                 user:true
             }
         })

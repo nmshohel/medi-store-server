@@ -1,72 +1,70 @@
-import express, { NextFunction, Request, Response, Router } from 'express';
-import {auth as betterAuth} from '../lib/auth'
+import { Request, Response, NextFunction } from "express";
+import { auth as betterAuth } from "../lib/auth";
 
 export enum UserRole {
-  CUSTOMER="CUSTOMER",
-  SELLER="SELLER",
-  ADMIN="ADMIN"
+  CUSTOMER = "CUSTOMER",
+  SELLER = "SELLER",
+  ADMIN = "ADMIN",
 }
-declare global{
-    namespace Express{
-        interface Request{
-            user?:{
-                id:string
-                email:string;
-                name:string;
-                role:string;
-                emailVerified:boolean;
-            }
-        }
+
+/* ------------------ Extend Express Request ------------------ */
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: string;
+        email: string;
+        name: string;
+        role: string;
+        emailVerified: boolean;
+      };
     }
+  }
 }
 
-const auth=(...roles:UserRole[])=>{
-    return async (req:Request,res:Response,next:NextFunction)=>{
-        try{
+/* ------------------ Auth Middleware ------------------ */
+const auth = (...roles: UserRole[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const session = await betterAuth.api.getSession({
+        headers: req.headers as any,
+      });
+      if (!session) {
+        return res.status(401).json({
+          success: false,
+          message: "You are not authorized",
+        });
+      }
 
-        const session= await betterAuth.api.getSession({
-            headers:req.headers as any
-        })
+      if (!session.user.emailVerified) {
+        return res.status(403).json({
+          success: false,
+          message: "Email is not verified",
+        });
+      }
 
-        if(!session)
-        {
-            // res.status(401).json({
-            //     success:false,
-            //     message:"You are not authorized"
-            // })
-            throw new Error("session not found")
-        }
-        // if(!session?.user.emailVerified)
-        // {
-        //     res.status(403).json({
-        //         success:false,
-        //         message:"Email is not verified"
-        //     })
-        // }
+      // ✅ attach user to request
+      req.user = {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        role: session.user.role,
+        emailVerified: session.user.emailVerified,
+      };
 
-        req.user={
-            id:session.user.id,
-            email:session.user.email,
-            name:session.user.name,
-            role:session.user.role as string,
-            emailVerified:session.user.emailVerified
-        }
+      // ✅ role check
+      if (roles.length && !roles.includes(req.user.role as UserRole)) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden",
+        });
+      }
 
-        if(roles.length && !roles.includes(req.user.role as UserRole))
-        {
-             res.status(403).json({
-                success:false,
-                message:"Forbidden"
-            })
-        }
-        // console.log(roles.includes(req.user.role as UserRole))
-        next()
-
-        }
-        catch(err){
-            next(err)
-        }
+      next();
+    } catch (error) {
+      next(error);
     }
-}
+  };
+};
 
 export default auth;
