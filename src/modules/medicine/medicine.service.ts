@@ -69,6 +69,9 @@ const getAllMedicine=async({
         orderBy: {
             [sortBy]:sortOrder
         },
+        include:{
+            reviews:true
+        }
     
     });
 

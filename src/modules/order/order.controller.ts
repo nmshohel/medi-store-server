@@ -38,6 +38,26 @@ const getAllOrder=async(req:Request,res:Response)=>{
     }
 
 }
+const getMyOrder=async(req:Request,res:Response)=>{
+    try{
+        const {id}=req.params
+        const userId=id as string
+        console.log("user controller",userId)
+        const {search}=req.query
+        const searchString=typeof search ==='string'? search:undefined;
+        const {page,limit,skip,sortBy,sortOrder}=paginationSortingHelpers(req.query)
+        const result=await OrderService.getMyOrder({search:searchString,page,limit,skip,sortBy,sortOrder,userId});
+        res.status(200).json(result)
+    }
+    catch(e){
+        res.status(400).json({
+            error:"Fatching problem",
+            details:e
+        })
+
+    }
+
+}
 const getOrderById=async(req:Request,res:Response)=>{
     try{
         const {id}=req.params
@@ -95,6 +115,7 @@ export const OrderController = {
     getAllOrder,
     getOrderById,
     updateOrder,
-    deleteOrder
+    deleteOrder,
+    getMyOrder
 
 }

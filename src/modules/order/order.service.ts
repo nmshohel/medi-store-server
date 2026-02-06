@@ -1,9 +1,23 @@
 import { Medicine, Order } from "../../../generated/prisma/client"
 import { MedicineWhereInput, OrderWhereInput } from "../../../generated/prisma/models"
+import { generateOrderNumber } from "../../helpers/orderNumber";
 import { prisma } from "../../lib/prisma"
 
 const createOrder = async (data: any, userId: string) => {
   const { orderItems, shippingAddress, paymentMethod, total } = data;
+  let orderNumber=0
+  orderNumber=generateOrderNumber()
+//   check order number exist 
+const checkOrderNum=await prisma.order.findFirst({
+    where:{
+        orderNumber:orderNumber
+    }
+})
+    if(checkOrderNum)
+    {
+        orderNumber=orderNumber+1
+    }
+
 
   // 1. Extract all medicine IDs from the incoming order
   const incomingMedicineIds = orderItems.map((item: any) => item.id);
@@ -35,6 +49,7 @@ const createOrder = async (data: any, userId: string) => {
     const order = await tx.order.create({
       data: {
         userId: userId,
+        orderNumber:orderNumber,
         totalAmount: total,
         address: shippingAddress,
         paymentMethod: paymentMethod,
@@ -145,6 +160,86 @@ const getAllOrder=async({
         }
     }
 }
+const getMyOrder=async({
+    search,page,limit,skip,sortBy,sortOrder,userId
+    }
+    :
+    {search:string|undefined,
+
+        page:number,
+        limit:number,
+        skip:number,
+        sortBy:string,
+        sortOrder:string,
+        userId:string
+
+    }
+
+)=>{
+    console.log(userId)
+    console.log("My order service")
+    const andConditions:OrderWhereInput[]=[]
+    if(search){
+        andConditions.push(
+            {
+                OR:[
+            {
+ 
+
+            },
+            {
+                userId:{
+                contains:search as string,
+                mode:'insensitive'
+            },
+      
+            },
+      
+        ]
+             }
+        )
+    }
+
+
+
+
+
+
+    const allOrder=await prisma.order.findMany({
+        take:limit,
+        skip,
+        where:{
+           AND:andConditions,
+           userId:userId
+        },
+        orderBy: {
+            [sortBy]:sortOrder
+        },
+        include:{
+            user:true,
+           
+        }
+    
+    });
+
+    const total=await prisma.order.count({
+        where:{
+            AND:andConditions,
+            userId:userId
+        }
+    })
+    
+    return {
+        data:allOrder,
+        pagination:{
+            total,
+            page,
+            limit,
+            totalpages:Math.ceil(total/limit)
+
+        }
+    }
+}
 const getOrderById=async(id:string)=>{
         const result=await prisma.order.findUnique({
             where:{
@@ -186,7 +281,8 @@ export const OrderService = {
     getAllOrder,
     getOrderById,
     updateOrder,
-    deleteOrder
+    deleteOrder,
+    getMyOrder
 
   
 }

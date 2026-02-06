@@ -24,7 +24,6 @@ model User {
   accounts  Account[]
   medicines Medicine[]
   orders    Order[]
-  reviews   Review[]
 
   @@map("user")
 }
@@ -109,9 +108,9 @@ model Medicine {
 }
 
 model Order {
-  id     String @id @default(uuid())
-  userId String
-
+  id            String      @id @default(uuid())
+  userId        String
+  orderNumber   Int?
   totalAmount   Float
   deliveryFee   Float       @default(60)
   address       String
@@ -139,17 +138,12 @@ model OrderItem {
 }
 
 model Review {
-  id      String  @id @default(uuid())
-  rating  Int
-  comment String?
-
-  userId     String
+  id         String   @id @default(uuid())
+  rating     Int
+  comment    String?
   medicineId String
-
-  user     User     @relation(fields: [userId], references: [id])
-  medicine Medicine @relation(fields: [medicineId], references: [id])
-
-  createdAt DateTime @default(now())
+  medicine   Medicine @relation(fields: [medicineId], references: [id])
+  createdAt  DateTime @default(now())
 }
 
 enum OrderStatus {
