@@ -1,0 +1,1 @@
+{"version":3,"file":"medicine.type.d.ts","sourceRoot":"","sources":["../../../src/types/medicine.type.ts"],"names":[],"mappings":"AAAA,MAAM,WAAW,mBAAmB;IAClC,IAAI,EAAE,MAAM,CAAA;IACZ,WAAW,EAAE,MAAM,CAAA;IACnB,KAAK,EAAE,MAAM,CAAA;IACb,KAAK,EAAE,MAAM,CAAA;IACb,YAAY,EAAE,MAAM,CAAA;IACpB,QAAQ,EAAE,MAAM,CAAA;IAChB,UAAU,EAAE,MAAM,CAAA;CACnB"}
